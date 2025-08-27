@@ -1,13 +1,13 @@
-const priorityColors = {
-  1: "#FF0000",
-  2: "#FFA500",
-  3: "#FFFF00",
+export const priorityNames: Record<number, string> = {
+  1: "Низкий",
+  2: "Средний", 
+  3: "Высокий",
+  4: "Критический"
 };
 
-const priorityNames = {
-  1: "High",
-  2: "Medium",
-  3: "Low",
+export const boardNames: Record<string, string> = {
+  "В работе": "in-progress",
+  "На проверке": "in-review",
+  "Готово": "done",
+  "Бэклог": "backlog"
 };
-
-export { priorityColors, priorityNames };

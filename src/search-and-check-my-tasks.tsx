@@ -33,10 +33,15 @@ interface Project {
 export default function Command() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "sprint" | "not-sprint">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "В работе" | "На проверке" | "Готово" | "Бэклог">("all");
 
   const [totalTasks, setTotalTasks] = useState(0);
   const [inProgress, setInProgress] = useState(0);
   const [inReview, setInReview] = useState(0);
+
+  // Отладочная информация
+  console.log("Command component rendered with:", { filter, statusFilter, projectsCount: projects.length });
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -65,8 +70,34 @@ export default function Command() {
     fetchTasks();
   }, []);
 
+  const filteredProjects = projects.filter((project) => {
+    if (filter === "all") return true;
+    if (filter === "sprint") return project.isSprint;
+    if (filter === "not-sprint") return !project.isSprint;
+    return true;
+  }).map((project) => ({
+    ...project,
+    tasks: statusFilter === "all" 
+      ? project.tasks 
+      : project.tasks.filter((task) => task.board.name === statusFilter)
+  }));
+
   return (
-    <List isLoading={isLoading} searchBarPlaceholder="Поиск по проектам...">
+    <List isLoading={isLoading} searchBarPlaceholder="Поиск по проектам..."
+      searchBarAccessory={
+        <List.Dropdown 
+          tooltip="Фильтр по типу проекта"
+          value={filter}
+          onChange={(value) => {
+            setFilter(value as "all" | "sprint" | "not-sprint");
+          }}
+        >
+          <List.Dropdown.Item title="Все проекты" value="all" />
+          <List.Dropdown.Item title="Только спринты" value="sprint" />
+          <List.Dropdown.Item title="Не спринты" value="not-sprint" />
+        </List.Dropdown>
+      }
+    >
       <List.Section title="Статистика">
         <List.Item title="Всего спринтов" subtitle={String(projects.length)} />
         <List.Item title="Всего задач" subtitle={String(totalTasks)} />
@@ -74,7 +105,46 @@ export default function Command() {
         <List.Item title="На проверке" subtitle={String(inReview)} />
       </List.Section>
 
-      {projects && projects.map((project: Project) => (
+      <List.Section title="Фильтр по статусу">
+        <List.Item 
+          title="Все статусы" 
+          accessories={[{ tag: { value: statusFilter === "all" ? "✓" : "", color: statusFilter === "all" ? "#00FF00" : "#666666" } }]}
+          actions={
+            <ActionPanel>
+              <Action title="Выбрать" onAction={() => {
+                console.log("Setting statusFilter to 'all'");
+                setStatusFilter("all");
+              }} />
+            </ActionPanel>
+          }
+        />
+        <List.Item 
+          title="В работе" 
+          accessories={[{ tag: { value: statusFilter === "В работе" ? "✓" : "", color: statusFilter === "В работе" ? "#00FF00" : "#666666" } }]}
+          actions={
+            <ActionPanel>
+              <Action title="Выбрать" onAction={() => {
+                console.log("Setting statusFilter to 'В работе'");
+                setStatusFilter("В работе");
+              }} />
+            </ActionPanel>
+          }
+        />
+        <List.Item 
+          title="На проверке" 
+          accessories={[{ tag: { value: statusFilter === "На проверке" ? "✓" : "", color: statusFilter === "На проверке" ? "#00FF00" : "#666666" } }]}
+          actions={
+            <ActionPanel>
+              <Action title="Выбрать" onAction={() => {
+                console.log("Setting statusFilter to 'На проверке'");
+                setStatusFilter("На проверке");
+              }} />
+            </ActionPanel>
+          }
+        />
+      </List.Section>
+
+      {filteredProjects && filteredProjects.map((project: Project) => (
         <List.Section key={project.id} title={project.name} subtitle={project.description}>
           {project.tasks.map((task) => (
             <List.Item
@@ -83,11 +153,11 @@ export default function Command() {
               subtitle={task.assignee.name}
               accessories={[
                 { tag: { value: task.board.name, color: task.board.color } },
-                { text: `Приоритет: ${priorityNames[task.priority as keyof typeof priorityNames]}`}
+                { text: `Приоритет: ${priorityNames[task.priority] || `Уровень ${task.priority}`}` }
               ]}
               actions={
                 <ActionPanel>
-                  <Action.OpenInBrowser url={`https://tasks.ex24.dev/tasks/${task.id}`} />
+                  <Action.OpenInBrowser url={`https://ex-crm.com/tasks/${task.id}`} />
                 </ActionPanel>
               }
             />
