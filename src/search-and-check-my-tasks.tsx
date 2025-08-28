@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { List, ActionPanel, Action } from "@raycast/api";
 import { priorityNames } from "./helpers";
 
-const BearerToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtYnYzNGVraDAwOTduYTJ1ZHl5YjgzNW8iLCJpYXQiOjE3NTYzMjI2NTMsImV4cCI6MTc1NjQwOTA1M30.dVhbRuB6omNqgoIu_kXMBcyhPMfQhZlD8QvCkh94fM0";
+const BearerToken = process.env.BEARER_TOKEN;
 
 interface Task {
   id: string;
