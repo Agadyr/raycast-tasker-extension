@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { List, ActionPanel, Action } from "@raycast/api";
+import { List, ActionPanel, Action, getPreferenceValues} from "@raycast/api";
 import { priorityNames } from "./helpers";
 
-const BearerToken = process.env.BEARER_TOKEN;
+const BearerToken = getPreferenceValues<{ PUBLIC_BEARER_TOKEN: string }>().PUBLIC_BEARER_TOKEN;
 
 interface Task {
   id: string;
@@ -40,6 +40,7 @@ export default function Command() {
   const [inReview, setInReview] = useState(0);
 
   // Отладочная информация
+  console.log(BearerToken);
   console.log("Command component rendered with:", { filter, statusFilter, projectsCount: projects.length });
 
   useEffect(() => {

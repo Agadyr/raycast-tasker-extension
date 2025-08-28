@@ -33,5 +33,14 @@
     "lint": "ray lint",
     "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
     "publish": "npx @raycast/api@latest publish"
-  }
+  },
+  "preferences": [
+    {
+      "name": "PUBLIC_BEARER_TOKEN",
+      "description": "Your API key",
+      "type": "textfield",
+      "required": true,
+      "default": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtYnYzNGVraDAwOTduYTJ1ZHl5YjgzNW8iLCJpYXQiOjE3NTY0MTIwMjUsImV4cCI6MTc1NjQ5ODQyNX0.AlRG5EhStv1Rv8W2UW93mmsmqzcMGpWu1eTIyBqo1fo"
+    }
+  ]
 }
