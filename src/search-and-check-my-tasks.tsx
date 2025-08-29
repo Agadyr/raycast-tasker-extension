@@ -10,7 +10,7 @@ const BearerToken = getPreferenceValues<{ PUBLIC_BEARER_TOKEN: string }>().PUBLI
 export default function Command() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "sprint" | "not-sprint">("all");
+  const [filter, setFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "В работе" | "На проверке" | "Готово" | "Бэклог">("all");
 
   const [totalTasks, setTotalTasks] = useState(0);
@@ -45,10 +45,11 @@ export default function Command() {
   }, []);
 
   const filteredProjects = projects.filter((project) => {
-    if (filter === "all") return true;
-    if (filter === "sprint") return project.isSprint;
-    if (filter === "not-sprint") return !project.isSprint;
-    return true;
+    if (filter === "all") {
+      return true;
+    } else {
+      return project.id === filter;
+    }
   }).map((project) => ({
     ...project,
     tasks: statusFilter === "all" 
@@ -62,10 +63,9 @@ export default function Command() {
         <List.Dropdown 
           tooltip="Фильтр по типу проекта"
           value={filter}
-          onChange={(value) => {
-            setFilter(value as "all" | "sprint" | "not-sprint");
-          }}
+          onChange={(value) => { setFilter(value)}}
         >
+          <List.Dropdown.Item title="Все проекты" value="all" />
           {projects.map((project) => (
             <List.Dropdown.Item key={project.id} title={project.name} value={project.id} />
           ))}
