@@ -1,33 +1,11 @@
 import { useEffect, useState } from "react";
 import { List, ActionPanel, Action, getPreferenceValues} from "@raycast/api";
 import { priorityNames } from "./helpers";
+import { Project, Task } from "./types";
+import { environment } from "@raycast/api";
+
 
 const BearerToken = getPreferenceValues<{ PUBLIC_BEARER_TOKEN: string }>().PUBLIC_BEARER_TOKEN;
-
-interface Task {
-  id: string;
-  title: string;
-  description: string | null;
-  priority: number;
-  assignee: {
-    id: string;
-    name: string;
-    avatar: string | null;
-  };
-  board: {
-    id: string;
-    name: string;
-    color: string;
-  };
-}
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  isSprint: boolean;
-  tasks: Task[];
-}
 
 export default function Command() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -38,10 +16,6 @@ export default function Command() {
   const [totalTasks, setTotalTasks] = useState(0);
   const [inProgress, setInProgress] = useState(0);
   const [inReview, setInReview] = useState(0);
-
-  // Отладочная информация
-  console.log(BearerToken);
-  console.log("Command component rendered with:", { filter, statusFilter, projectsCount: projects.length });
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -92,13 +66,13 @@ export default function Command() {
             setFilter(value as "all" | "sprint" | "not-sprint");
           }}
         >
-          <List.Dropdown.Item title="Все проекты" value="all" />
-          <List.Dropdown.Item title="Только спринты" value="sprint" />
-          <List.Dropdown.Item title="Не спринты" value="not-sprint" />
+          {projects.map((project) => (
+            <List.Dropdown.Item key={project.id} title={project.name} value={project.id} />
+          ))}
         </List.Dropdown>
       }
     >
-      <List.Section title="Статистика">
+      <List.Section title={`Статистика (Проект: ${environment.extensionName}, Автор: ${environment.ownerOrAuthorName}, Версия: ${environment.raycastVersion})`}>
         <List.Item title="Всего спринтов" subtitle={String(projects.length)} />
         <List.Item title="Всего задач" subtitle={String(totalTasks)} />
         <List.Item title="В работе" subtitle={String(inProgress)} />
@@ -112,7 +86,6 @@ export default function Command() {
           actions={
             <ActionPanel>
               <Action title="Выбрать" onAction={() => {
-                console.log("Setting statusFilter to 'all'");
                 setStatusFilter("all");
               }} />
             </ActionPanel>
