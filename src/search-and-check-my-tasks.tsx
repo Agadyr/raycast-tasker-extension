@@ -4,14 +4,15 @@ import { priorityNames } from "./helpers";
 import { Project, Task } from "./types";
 import { environment } from "@raycast/api";
 
-
-const BearerToken = getPreferenceValues<{ PUBLIC_BEARER_TOKEN: string }>().PUBLIC_BEARER_TOKEN;
+const preferences = getPreferenceValues<{ BEARER_TOKEN: string }>();
+const BearerToken = preferences.BEARER_TOKEN;
 
 export default function Command() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "В работе" | "На проверке" | "Готово" | "Бэклог">("all");
+  const [error, setError] = useState<string | null>(null);
 
   const [totalTasks, setTotalTasks] = useState(0);
   const [inProgress, setInProgress] = useState(0);
@@ -20,23 +21,38 @@ export default function Command() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        setError(null);
+        
         const response = await fetch(
           "https://tasks-back.ex24.dev/api/projects/with-tasks",
           {
-            headers: { Authorization: `Bearer ${BearerToken}` },
+            headers: { 
+              Authorization: `Bearer ${BearerToken}`,
+              'Content-Type': 'application/json'
+            },
           }
         );
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          setError(`Ошибка API: ${response.status} - ${errorText}`);
+          setProjects([]);
+          setTotalTasks(0);
+          return;
+        }
+        
         const data = await response.json() as { projects: Project[]; totalTasks: number };
 
         setProjects(data.projects);
         setTotalTasks(data.totalTasks);
 
-        // Считаем статистику
         const tasks = data.projects.flatMap((p: Project) => p.tasks);
         setInProgress(tasks.filter((t: Task) => t.board.name === "В работе").length);
         setInReview(tasks.filter((t: Task) => t.board.name === "На проверке").length);
       } catch (error) {
-        console.error("Error fetching tasks:", error);
+        setError(`Ошибка сети: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+        setProjects([]);
+        setTotalTasks(0);
       } finally {
         setIsLoading(false);
       }
@@ -78,6 +94,16 @@ export default function Command() {
         <List.Item title="В работе" subtitle={String(inProgress)} />
         <List.Item title="На проверке" subtitle={String(inReview)} />
       </List.Section>
+
+      {error && (
+        <List.Section title="Ошибка">
+          <List.Item 
+            title="Проблема с подключением" 
+            subtitle={error}
+            accessories={[{ tag: { value: "Ошибка", color: "#FF0000" } }]}
+          />
+        </List.Section>
+      )}
 
       <List.Section title="Фильтр по статусу">
         <List.Item 

@@ -36,11 +36,11 @@
   },
   "preferences": [
     {
-      "name": "PUBLIC_BEARER_TOKEN",
+      "name": "BEARER_TOKEN",
       "description": "Your API key",
       "type": "textfield",
       "required": true,
-      "default": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtYnYzNGVraDAwOTduYTJ1ZHl5YjgzNW8iLCJpYXQiOjE3NTY0MTIwMjUsImV4cCI6MTc1NjQ5ODQyNX0.AlRG5EhStv1Rv8W2UW93mmsmqzcMGpWu1eTIyBqo1fo"
+      "default": "your bearer token"
     }
   ]
 }
